@@ -1,15 +1,26 @@
 
 import { useState, useEffect } from "react";
-import { Show, SignInButton, SignUpButton } from "@clerk/react";
+import { Show, SignInButton, SignUpButton, useAuth, useClerk } from "@clerk/react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sparkles, Search, Bell, ArrowRight, Zap, Bot, BarChart3, Clock, Globe, MapPin, Flame } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 
 export default function HeroSection() {
   const [location, setLocation] = useState<{ city: string; country: string } | null>(null);
   const [loadingLoc, setLoadingLoc] = useState(true);
+  const { isSignedIn } = useAuth();
+  const clerk = useClerk();
+
+  const handleFeatureClick = () => {
+    if (isSignedIn) {
+      navigate("/dashboard");
+    } else {
+      clerk.openSignIn({ forceRedirectUrl: "/dashboard" });
+    }
+  };
 
   useEffect(() => {
     fetch('https://ipapi.co/json/')
@@ -22,7 +33,7 @@ export default function HeroSection() {
       .catch(err => console.error("Error fetching location:", err))
       .finally(() => setLoadingLoc(false));
   }, []);
-
+ const navigate = useNavigate();
   const locationText = loadingLoc 
     ? "Locating..." 
     : (location && location.country === "India") 
@@ -49,8 +60,12 @@ export default function HeroSection() {
 
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-400">
             <a href="#features" className="hover:text-white transition-colors duration-200">Features</a>
-            <a href="#ai" className="hover:text-white transition-colors duration-200">AI Recommendations</a>
-            <a href="#events" className="hover:text-white transition-colors duration-200">Events</a>
+            <SignInButton mode="modal">
+              <button className="hover:text-white transition-colors duration-200" onClick={() => navigate("/dashboard")}>
+                Dashboard
+              </button>
+            </SignInButton>
+            <a href="#events" className="hover:text-white transition-colors duration-200">Explore</a>
             <a href="#contact" className="hover:text-white transition-colors duration-200">Contact</a>
           </div>
 
@@ -111,7 +126,7 @@ export default function HeroSection() {
                   </Button>
                 </SignInButton>
                 <SignInButton mode="modal">
-                  <Button size="lg" variant="outline" className="h-12 px-6 border-zinc-800 text-zinc-300 hover:bg-zinc-900 hover:text-white backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-white/5 group">
+                  <Button size="lg" variant="outline" className="h-12 px-6 border-zinc-800 text-zinc-300 hover:bg-purple-900 hover:text-white backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-white/5 group">
                     Explore Events
                   </Button>
                 </SignInButton>
@@ -144,7 +159,7 @@ export default function HeroSection() {
           <div className="relative w-full aspect-square lg:aspect-auto lg:h-[800px] flex flex-col justify-center z-10 animate-in fade-in zoom-in-95 duration-1000 delay-300 fill-mode-both px-4">
             
             {/* Main Motto Card */}
-            <Card className="w-full max-w-lg mx-auto bg-zinc-950/60 border-purple-500/20 backdrop-blur-xl shadow-2xl relative z-20 overflow-hidden mb-6 group hover:border-purple-500/40 transition-colors duration-500 hover:-translate-y-1">
+            <Card onClick={handleFeatureClick} className="w-full max-w-lg mx-auto bg-zinc-950/60 border-purple-500/20 backdrop-blur-xl shadow-2xl relative z-20 overflow-hidden mb-6 group hover:border-purple-500/40 transition-colors duration-500 hover:-translate-y-1 cursor-pointer">
               <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-blue-500/10 opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
               <CardHeader className="pb-4">
                 <CardTitle className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400 flex items-center gap-2">
@@ -160,7 +175,7 @@ export default function HeroSection() {
             {/* Feature Grid */}
             <div className="w-full max-w-lg mx-auto grid grid-cols-2 gap-4 relative z-20">
               
-              <Card className="bg-zinc-900/50 border-white/5 backdrop-blur-md hover:bg-white/5 hover:border-blue-500/30 transition-all duration-300 cursor-default group hover:-translate-y-1 shadow-lg hover:shadow-blue-500/10">
+              <Card onClick={handleFeatureClick} className="bg-zinc-900/50 border-white/5 backdrop-blur-md hover:bg-white/5 hover:border-blue-500/30 transition-all duration-300 cursor-pointer group hover:-translate-y-1 shadow-lg hover:shadow-blue-500/10">
                 <CardContent className="p-4 flex flex-col gap-3">
                   <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20 group-hover:scale-110 transition-transform duration-300 group-hover:bg-blue-500/20">
                     <Globe className="w-5 h-5 text-blue-400" />
@@ -172,7 +187,7 @@ export default function HeroSection() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-zinc-900/50 border-white/5 backdrop-blur-md hover:bg-white/5 hover:border-emerald-500/30 transition-all duration-300 cursor-default group hover:-translate-y-1 shadow-lg hover:shadow-emerald-500/10">
+              <Card onClick={handleFeatureClick} className="bg-zinc-900/50 border-white/5 backdrop-blur-md hover:bg-white/5 hover:border-emerald-500/30 transition-all duration-300 cursor-pointer group hover:-translate-y-1 shadow-lg hover:shadow-emerald-500/10">
                 <CardContent className="p-4 flex flex-col gap-3">
                   <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 group-hover:scale-110 transition-transform duration-300 group-hover:bg-emerald-500/20">
                     <Bot className="w-5 h-5 text-emerald-400" />
@@ -184,7 +199,7 @@ export default function HeroSection() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-zinc-900/50 border-white/5 backdrop-blur-md hover:bg-white/5 hover:border-purple-500/30 transition-all duration-300 cursor-default group hover:-translate-y-1 shadow-lg hover:shadow-purple-500/10">
+              <Card onClick={handleFeatureClick} className="bg-zinc-900/50 border-white/5 backdrop-blur-md hover:bg-white/5 hover:border-purple-500/30 transition-all duration-300 cursor-pointer group hover:-translate-y-1 shadow-lg hover:shadow-purple-500/10">
                 <CardContent className="p-4 flex flex-col gap-3">
                   <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20 group-hover:scale-110 transition-transform duration-300 group-hover:bg-purple-500/20">
                     <Zap className="w-5 h-5 text-purple-400" />
@@ -196,7 +211,7 @@ export default function HeroSection() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-zinc-900/50 border-white/5 backdrop-blur-md hover:bg-white/5 hover:border-orange-500/30 transition-all duration-300 cursor-default group hover:-translate-y-1 shadow-lg hover:shadow-orange-500/10">
+              <Card onClick={handleFeatureClick} className="bg-zinc-900/50 border-white/5 backdrop-blur-md hover:bg-white/5 hover:border-orange-500/30 transition-all duration-300 cursor-pointer group hover:-translate-y-1 shadow-lg hover:shadow-orange-500/10">
                 <CardContent className="p-4 flex flex-col gap-3">
                   <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center border border-orange-500/20 group-hover:scale-110 transition-transform duration-300 group-hover:bg-orange-500/20">
                     <Clock className="w-5 h-5 text-orange-400" />
@@ -208,7 +223,7 @@ export default function HeroSection() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-zinc-900/50 border-white/5 backdrop-blur-md hover:bg-white/5 hover:border-cyan-500/30 transition-all duration-300 cursor-default group col-span-2 hover:-translate-y-1 shadow-lg hover:shadow-cyan-500/10">
+              <Card onClick={handleFeatureClick} className="bg-zinc-900/50 border-white/5 backdrop-blur-md hover:bg-white/5 hover:border-cyan-500/30 transition-all duration-300 cursor-pointer group col-span-2 hover:-translate-y-1 shadow-lg hover:shadow-cyan-500/10">
                 <CardContent className="p-5 flex items-center gap-5">
                   <div className="w-12 h-12 rounded-xl bg-cyan-500/10 flex shrink-0 items-center justify-center border border-cyan-500/20 group-hover:scale-110 transition-transform duration-300 group-hover:bg-cyan-500/20">
                     <BarChart3 className="w-6 h-6 text-cyan-400" />
@@ -245,11 +260,9 @@ export default function HeroSection() {
               </p>
             </div>
           </div>
-          <SignInButton mode="modal">
-            <Button variant="ghost" className="text-zinc-400 hover:text-white hover:bg-white/5 group">
-              View all in your area <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
-            </Button>
-          </SignInButton>
+          <Button onClick={handleFeatureClick} variant="ghost" className="text-zinc-400 hover:text-white hover:bg-white/5 group">
+            View all in your area <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
+          </Button>
         </div>
 
         <div className="w-full h-64 rounded-2xl border border-dashed border-white/10 flex flex-col items-center justify-center bg-zinc-900/20">

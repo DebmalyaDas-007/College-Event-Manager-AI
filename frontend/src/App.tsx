@@ -5,8 +5,8 @@ import './App.css'
 import {
   Routes,
   Route,
-
 } from "react-router-dom"
+import { Show, RedirectToSignIn } from "@clerk/react"
 
 import Dashboard from "./pages/Dashboard"
 import Home from "./pages/Home"
@@ -24,8 +24,17 @@ function App() {
       />
 
       <Route
-        path="/Dashboard"
-        element={<Dashboard />}
+        path="/dashboard"
+        element={
+          <>
+            <Show when="signed-in">
+              <Dashboard />
+            </Show>
+            <Show when="signed-out">
+              <Home />
+            </Show>
+          </>
+        }
       />
 
     </Routes>
