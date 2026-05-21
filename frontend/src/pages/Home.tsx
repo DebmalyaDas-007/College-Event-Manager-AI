@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sparkles, Search, Bell, ArrowRight, Zap, Bot, BarChart3, Clock, Globe, MapPin, Flame } from "lucide-react";
+import { Navigate } from "react-router-dom";
 
 export default function HeroSection() {
   const [location, setLocation] = useState<{ city: string; country: string } | null>(null);
@@ -67,9 +68,7 @@ export default function HeroSection() {
               </SignUpButton>
             </Show>
             <Show when="signed-in">
-              <Button className="bg-white text-black hover:bg-zinc-200 transition-all duration-200 hover:-translate-y-0.5">
-                Dashboard
-              </Button>
+              <Navigate to="/dashboard"/>
             </Show>
           </div>
         </div>
