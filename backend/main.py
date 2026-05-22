@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from routes.auth_routes import router as auth_router
+from routes.event_routes import router as event_router
+from routes.upload_routes import router as upload_router
 
 app = FastAPI()
 
@@ -19,6 +21,18 @@ app.include_router(
     auth_router,
     prefix="/api/v1/auth",
     tags=["Authentication"]
+)
+
+app.include_router(
+    event_router,
+    prefix="/api/v1/events",
+    tags=["Events"]
+)
+
+app.include_router(
+    upload_router,
+    prefix="/api/v1/upload",
+    tags=["Uploads"]
 )
 
 @app.get("/")

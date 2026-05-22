@@ -6,10 +6,13 @@ import {
   Routes,
   Route,
 } from "react-router-dom"
+
 import { Show, RedirectToSignIn } from "@clerk/react"
 
+import Events from "./pages/events"
 import Dashboard from "./pages/Dashboard"
 import Home from "./pages/Home"
+import Profile from "./pages/Profile"
 
 
 function App() {
@@ -28,7 +31,12 @@ function App() {
         element={
           <>
             <Show when="signed-in">
-              <Dashboard />
+              <Dashboard 
+              
+
+              
+              
+              />
             </Show>
             <Show when="signed-out">
               <Home />
@@ -36,6 +44,32 @@ function App() {
           </>
         }
       />
+      <Route path="/createevent" 
+      element={
+       <>
+       
+       <Show when="signed-in">
+        <Events />
+       </Show>
+       <Show when="signed-out">
+        <RedirectToSignIn />
+       </Show>
+       </>
+
+
+      }/>
+
+      <Route path="/profile" 
+      element={
+       <>
+       <Show when="signed-in">
+        <Profile />
+       </Show>
+       <Show when="signed-out">
+        <RedirectToSignIn />
+       </Show>
+       </>
+      }/>
 
     </Routes>
 
