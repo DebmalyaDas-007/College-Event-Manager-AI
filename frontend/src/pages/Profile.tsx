@@ -36,19 +36,20 @@ export default function Profile() {
         });
         if (res.ok) {
           const data = await res.json();
-          if (data.profile) {
+          const profile = data.profile || data;
+          if (profile) {
             setProfileData({
-              college: data.profile.college || "",
-              department: data.profile.department || "",
-              cgpa: data.profile.cgpa ? data.profile.cgpa.toString() : "",
-              address: data.profile.address || "",
-              tenth_percentage: data.profile.tenth_percentage ? data.profile.tenth_percentage.toString() : "",
-              twelfth_percentage: data.profile.twelfth_percentage ? data.profile.twelfth_percentage.toString() : "",
-              interests: data.profile.interests ? data.profile.interests.join(", ") : "",
-              hobbies: data.profile.hobbies ? data.profile.hobbies.join(", ") : "",
-              skills: data.profile.skills ? data.profile.skills.join(", ") : "",
-              github_url: data.profile.github_url || "",
-              linkedin_url: data.profile.linkedin_url || ""
+              college: profile.college === "Not Specified" ? "" : (profile.college || ""),
+              department: profile.department || "",
+              cgpa: profile.cgpa ? profile.cgpa.toString() : "",
+              address: profile.address || "",
+              tenth_percentage: profile.tenth_percentage ? profile.tenth_percentage.toString() : "",
+              twelfth_percentage: profile.twelfth_percentage ? profile.twelfth_percentage.toString() : "",
+              interests: profile.interests ? profile.interests.join(", ") : "",
+              hobbies: profile.hobbies ? profile.hobbies.join(", ") : "",
+              skills: profile.skills ? profile.skills.join(", ") : "",
+              github_url: profile.github_url || "",
+              linkedin_url: profile.linkedin_url || ""
             });
           }
         }

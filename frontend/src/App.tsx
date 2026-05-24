@@ -13,6 +13,8 @@ import Events from "./pages/events"
 import Dashboard from "./pages/Dashboard"
 import Home from "./pages/Home"
 import Profile from "./pages/Profile"
+import Onboarding from "./pages/Onboarding"
+import AdminOnboarding from "./pages/AdminOnboarding"
 
 
 function App() {
@@ -64,6 +66,30 @@ function App() {
        <>
        <Show when="signed-in">
         <Profile />
+       </Show>
+       <Show when="signed-out">
+        <RedirectToSignIn />
+       </Show>
+       </>
+      }/>
+
+      <Route path="/onboarding" 
+      element={
+       <>
+       <Show when="signed-in">
+        <Onboarding />
+       </Show>
+       <Show when="signed-out">
+        <RedirectToSignIn />
+       </Show>
+       </>
+      }/>
+
+      <Route path="/admin-onboarding" 
+      element={
+       <>
+       <Show when="signed-in">
+        <AdminOnboarding />
        </Show>
        <Show when="signed-out">
         <RedirectToSignIn />

@@ -14,19 +14,39 @@ export default function Dashboard() {
       try {
         const token = await getToken();
         if (!token) return;
+
+        // 1. Check if user is a registered Admin
+        const adminRes = await fetch("http://localhost:8000/api/v1/admin/me", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (adminRes.ok) {
+          // If admin exists in database, bypass student warnings
+          setShowProfileWarning(false);
+          return;
+        }
+
+        // 2. If not an admin, check student profile
         const res = await fetch("http://localhost:8000/api/v1/auth/me", {
           headers: { Authorization: `Bearer ${token}` }
         });
+
         if (res.ok) {
           const data = await res.json();
-          if (data.profile) {
-            // Check if important criteria are filled
-            const { college, department, interests } = data.profile;
-            if (!college || !department || !interests || interests.length === 0) {
-              setShowProfileWarning(true);
-            } else {
-              setShowProfileWarning(false);
-            }
+          const profile = data.profile || data;
+
+          // If the profile is completely brand new (college = "Not Specified" or empty), redirect to onboarding
+          if (!profile.college || profile.college === "Not Specified") {
+            navigate("/onboarding");
+            return;
+          }
+
+          // Check if important criteria are filled
+          const { college, department, interests } = profile;
+          if (!college || !department || !interests || interests.length === 0) {
+            setShowProfileWarning(true);
+          } else {
+            setShowProfileWarning(false);
           }
         }
       } catch(e) {

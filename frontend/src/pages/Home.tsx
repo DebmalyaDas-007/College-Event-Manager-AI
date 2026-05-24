@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { Show, SignInButton, SignUpButton, useAuth, useClerk } from "@clerk/react";
+import { SignInButton, useAuth, useClerk } from "@clerk/react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,7 +11,7 @@ import { Navigate } from "react-router-dom";
 export default function HeroSection() {
   const [location, setLocation] = useState<{ city: string; country: string } | null>(null);
   const [loadingLoc, setLoadingLoc] = useState(true);
-  const { isSignedIn } = useAuth();
+  const { isSignedIn, isLoaded } = useAuth();
   const clerk = useClerk();
 
   const handleFeatureClick = () => {
@@ -60,31 +60,24 @@ export default function HeroSection() {
 
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-400">
             <a href="#features" className="hover:text-white transition-colors duration-200">Features</a>
-            <SignInButton mode="modal">
-              <button className="hover:text-white transition-colors duration-200" onClick={() => navigate("/dashboard")}>
-                Dashboard
-              </button>
-            </SignInButton>
+            <button 
+              className="hover:text-white transition-colors duration-200 cursor-pointer bg-transparent border-0 text-sm font-medium text-zinc-400"
+              onClick={() => {
+                if (isSignedIn) {
+                  navigate("/dashboard");
+                } else {
+                  clerk.redirectToSignIn({ redirectUrl: window.location.origin + "/dashboard" });
+                }
+              }}
+            >
+              Dashboard
+            </button>
             <a href="#events" className="hover:text-white transition-colors duration-200">Explore</a>
             <a href="#contact" className="hover:text-white transition-colors duration-200">Contact</a>
           </div>
 
           <div className="flex items-center gap-4">
-            <Show when="signed-out">
-              <SignInButton mode="modal">
-                <Button variant="ghost" className="text-zinc-300 hover:text-white hover:bg-white/5 transition-all duration-200">
-                  Sign In
-                </Button>
-              </SignInButton>
-              <SignUpButton mode="modal">
-                <Button className="bg-white text-black hover:bg-zinc-200 transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_25px_rgba(255,255,255,0.2)] hover:-translate-y-0.5">
-                  Sign Up
-                </Button>
-              </SignUpButton>
-            </Show>
-            <Show when="signed-in">
-              <Navigate to="/dashboard"/>
-            </Show>
+            {isSignedIn && <Navigate to="/dashboard" />}
           </div>
         </div>
       </nav>
@@ -119,23 +112,24 @@ export default function HeroSection() {
             </p>
 
             <div className="flex flex-wrap items-center gap-4 pt-4">
-              <Show when="signed-out">
-                <SignInButton mode="modal">
-                  <Button size="lg" className="h-12 px-6 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white shadow-[0_0_30px_rgba(124,58,237,0.3)] transition-all duration-300 hover:scale-105 group">
-                    Get Started <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
-                  </Button>
-                </SignInButton>
-                <SignInButton mode="modal">
-                  <Button size="lg" variant="outline" className="h-12 px-6 border-zinc-800 text-zinc-300 hover:bg-purple-900 hover:text-white backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-white/5 group">
-                    Explore Events
-                  </Button>
-                </SignInButton>
-              </Show>
-              <Show when="signed-in">
-                <Button size="lg" className="h-12 px-6 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white shadow-[0_0_30px_rgba(124,58,237,0.3)] transition-all duration-300 hover:scale-105 group">
+              {(!isLoaded || !isSignedIn) ? (
+                <>
+                  <SignInButton mode="redirect" forceRedirectUrl="/dashboard">
+                    <Button size="lg" className="h-12 px-6 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white shadow-[0_0_30px_rgba(124,58,237,0.3)] transition-all duration-300 hover:scale-105 group cursor-pointer">
+                      Get Started <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
+                    </Button>
+                  </SignInButton>
+                  <SignInButton mode="redirect" forceRedirectUrl="/dashboard">
+                    <Button size="lg" variant="outline" className="h-12 px-6 border-zinc-800 text-zinc-300 hover:bg-purple-900 hover:text-white backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-white/5 group cursor-pointer">
+                      Explore Events
+                    </Button>
+                  </SignInButton>
+                </>
+              ) : (
+                <Button onClick={() => navigate("/dashboard")} size="lg" className="h-12 px-6 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white shadow-[0_0_30px_rgba(124,58,237,0.3)] transition-all duration-300 hover:scale-105 group cursor-pointer">
                   Explore Events <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
                 </Button>
-              </Show>
+              )}
             </div>
 
             {/* Project Insights */}
