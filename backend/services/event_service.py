@@ -12,3 +12,27 @@ def create_event_in_db(event_data: EventCreate, user_id: str):
     result = event_collection.insert_one(event_dict)
     event_dict["_id"] = str(result.inserted_id)
     return event_dict
+
+def get_events_by_organizer(user_id: str):
+    cursor = event_collection.find({"created_by": user_id})
+    events = []
+    for doc in cursor:
+        doc["_id"] = str(doc["_id"])
+        # convert datetimes to string for JSON serialization
+        for k, v in doc.items():
+            if isinstance(v, datetime.datetime):
+                doc[k] = v.isoformat()
+        events.append(doc)
+    return events
+
+def get_all_events_from_db():
+    cursor = event_collection.find()
+    events = []
+    for doc in cursor:
+        doc["_id"] = str(doc["_id"])
+        # convert datetimes to string for JSON serialization
+        for k, v in doc.items():
+            if isinstance(v, datetime.datetime):
+                doc[k] = v.isoformat()
+        events.append(doc)
+    return events

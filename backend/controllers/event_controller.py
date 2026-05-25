@@ -5,8 +5,27 @@ File: controllers/event_controller.py
 
 from fastapi import Request, HTTPException, status
 from models.event_model import EventCreate, EventResponse, EventStatus
-from services.event_service import create_event_in_db
+from services.event_service import create_event_in_db, get_events_by_organizer, get_all_events_from_db
 from controllers.auth_controller import get_clerk_id_from_request
+
+async def get_my_events(request: Request):
+    """
+    GET /api/v1/events/my-events
+    Retrieves events created by the currently authenticated admin/organizer.
+    """
+    clerk_id = get_clerk_id_from_request(request)
+    events = get_events_by_organizer(clerk_id)
+    return events
+
+async def get_all_events(request: Request):
+    """
+    GET /api/v1/events
+    Retrieves all campus events listed in the system.
+    """
+    # Ensure caller is authenticated
+    get_clerk_id_from_request(request)
+    events = get_all_events_from_db()
+    return events
 
 async def create_event(request: Request, event_data: EventCreate) -> EventResponse:
     """

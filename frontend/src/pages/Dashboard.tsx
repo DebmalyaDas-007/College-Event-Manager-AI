@@ -1,4 +1,4 @@
-import { useAuth, UserButton } from '@clerk/react';
+import { useAuth, UserButton, useUser } from '@clerk/react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { Search, Bell, User } from "lucide-react";
 export default function Dashboard() {
   const navigate = useNavigate();
   const { getToken } = useAuth();
+  const { user } = useUser();
   const [showProfileWarning, setShowProfileWarning] = useState(false);
 
   useEffect(() => {
@@ -15,14 +16,28 @@ export default function Dashboard() {
         const token = await getToken();
         if (!token) return;
 
+        // 0. High priority Clerk metadata check
+        if (user?.publicMetadata?.role === "admin") {
+          navigate("/admin-dashboard");
+          return;
+        }
+
         // 1. Check if user is a registered Admin
         const adminRes = await fetch("http://localhost:8000/api/v1/admin/me", {
           headers: { Authorization: `Bearer ${token}` }
         });
 
         if (adminRes.ok) {
-          // If admin exists in database, bypass student warnings
+          // If admin exists in database, bypass student warnings and redirect to Admin Dashboard
           setShowProfileWarning(false);
+          navigate("/admin-dashboard");
+          return;
+        }
+
+        // Check if they selected Admin role on the Landing page and haven't onboarded yet
+        if (localStorage.getItem("userRoleChoice") === "admin") {
+          localStorage.removeItem("userRoleChoice");
+          navigate("/admin-onboarding");
           return;
         }
 
@@ -54,7 +69,7 @@ export default function Dashboard() {
       }
     };
     fetchProfile();
-  }, [getToken, navigate]);
+  }, [getToken, navigate, user]);
 
   return (
     <div className="dashboard relative min-h-screen bg-zinc-950 text-zinc-50 overflow-hidden font-sans selection:bg-purple-500/30">

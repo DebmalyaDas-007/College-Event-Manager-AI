@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth, useUser } from "@clerk/react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,8 @@ export default function AdminOnboarding() {
 
   const [loading, setLoading] = useState(false);
   const [adminRole, setAdminRole] = useState("club_organizer");
+  const [checkingStatus, setCheckingStatus] = useState(true);
+  const [profileExists, setProfileExists] = useState(false);
 
   // Form states matching AdminCreate
   const [formData, setFormData] = useState({
@@ -31,6 +33,41 @@ export default function AdminOnboarding() {
     social_linkedin: "",
     member_count: ""
   });
+
+  useEffect(() => {
+    const checkAdminProfileStatus = async () => {
+      if (!user) return;
+      try {
+        const token = await getToken();
+        if (!token) return;
+
+        const res = await fetch("http://localhost:8000/api/v1/admin/me", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (res.ok) {
+          setProfileExists(true);
+          // If already approved in Clerk metadata, send them to dashboard immediately!
+          if (user?.publicMetadata?.role === "admin") {
+            navigate("/admin-dashboard");
+            return;
+          }
+        }
+      } catch (err) {
+        console.error("Error checking admin profile status:", err);
+      } finally {
+        setCheckingStatus(false);
+      }
+    };
+
+    if (userLoaded) {
+      if (user) {
+        checkAdminProfileStatus();
+      } else {
+        setCheckingStatus(false);
+      }
+    }
+  }, [user, userLoaded, getToken, navigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -89,8 +126,7 @@ export default function AdminOnboarding() {
       });
 
       if (res.ok) {
-        alert("Admin profile registered successfully!");
-        navigate("/dashboard");
+        setProfileExists(true);
       } else {
         const errorText = await res.text();
         console.error("Backend error:", errorText);
@@ -108,10 +144,66 @@ export default function AdminOnboarding() {
   const selectClasses = "w-full bg-zinc-900 border border-white/10 rounded-lg px-4 py-3 text-zinc-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all";
   const labelClasses = "block text-sm font-medium text-zinc-400 mb-2 ml-1";
 
-  if (!userLoaded) {
+  if (!userLoaded || checkingStatus) {
     return (
       <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-purple-500 animate-spin" />
+      </div>
+    );
+  }
+
+  if (profileExists && user?.publicMetadata?.role !== "admin") {
+    return (
+      <div className="relative min-h-screen bg-zinc-950 text-zinc-50 overflow-hidden font-sans flex flex-col items-center justify-center selection:bg-purple-500/30 px-6">
+        {/* Background glowing elements */}
+        <div className="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[120px] pointer-events-none" />
+        <div className="fixed bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none" />
+
+        <div className="relative z-10 flex flex-col items-center text-center max-w-md bg-zinc-900/40 border border-white/10 backdrop-blur-xl p-8 rounded-2xl shadow-2xl">
+          <div className="relative w-20 h-20 flex items-center justify-center mb-6">
+            <div className="absolute inset-0 rounded-full border border-purple-500/30 animate-pulse duration-[2000ms]" />
+            <div className="w-16 h-16 rounded-full bg-zinc-950 border border-white/5 flex items-center justify-center shadow-lg">
+              <Shield className="w-8 h-8 text-purple-400 animate-pulse" />
+            </div>
+          </div>
+
+          <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-200 to-zinc-400 tracking-tight mb-3">
+            Profile Under Review
+          </h2>
+
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-medium mb-6">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
+            Awaiting Metadata Clearance
+          </div>
+
+          <p className="text-sm text-zinc-400 leading-relaxed mb-8">
+            Your administrator profile has been successfully registered and is currently under review by the platform administrator. 
+            <br /><br />
+            Once approved, your role will be upgraded to <span className="text-purple-400 font-semibold">Admin</span> in the authentication metadata, and you will gain full access immediately. No further verification required.
+          </p>
+
+          <div className="w-full flex flex-col gap-3">
+            <Button 
+              onClick={() => {
+                // Reload page to re-fetch status in case it was updated
+                window.location.reload();
+              }}
+              className="w-full h-11 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white shadow-md border-0 cursor-pointer"
+            >
+              Refresh Status
+            </Button>
+            <Button 
+              onClick={() => navigate("/")}
+              variant="outline"
+              className="w-full h-11 bg-zinc-800/40 border-white/10 text-zinc-300 hover:bg-white/5"
+            >
+              Back to Home
+            </Button>
+          </div>
+        </div>
+
+        {/* Tech Grid Overlay */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
       </div>
     );
   }

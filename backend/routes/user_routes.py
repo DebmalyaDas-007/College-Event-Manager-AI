@@ -1,12 +1,8 @@
-"""
-Nexus AI — User Routes
-File: routes/user_routes.py
-"""
-
 from fastapi import APIRouter, Depends
 from middleware.auth_middleware import verify_clerk_token
 from controllers.user_controller import (
     register_user_profile,
+    update_user_profile_handler, # <-- Add this controller import
     get_public_profile,
     bookmark_event,
     unbookmark_event,
@@ -15,9 +11,16 @@ from controllers.user_controller import (
 
 router = APIRouter()
 
+# Webhook or Initial manual creation
 router.post(
     "/",
 )(register_user_profile)
+
+# 🛠️ FIX: Add the missing profile update route with authentication!
+router.patch(
+    "/me",
+    dependencies=[Depends(verify_clerk_token)]
+)(update_user_profile_handler)
 
 router.get(
     "/{user_id}",

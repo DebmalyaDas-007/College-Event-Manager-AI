@@ -4,13 +4,14 @@ import { SignInButton, useAuth, useClerk } from "@clerk/react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sparkles, Search, Bell, ArrowRight, Zap, Bot, BarChart3, Clock, Globe, MapPin, Flame } from "lucide-react";
+import { Sparkles, Search, Bell, ArrowRight, Zap, Bot, BarChart3, Clock, Globe, MapPin, Flame, GraduationCap, Shield, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 
 export default function HeroSection() {
   const [location, setLocation] = useState<{ city: string; country: string } | null>(null);
   const [loadingLoc, setLoadingLoc] = useState(true);
+  const [showRoleModal, setShowRoleModal] = useState(false);
   const { isSignedIn, isLoaded } = useAuth();
   const clerk = useClerk();
 
@@ -64,9 +65,9 @@ export default function HeroSection() {
               className="hover:text-white transition-colors duration-200 cursor-pointer bg-transparent border-0 text-sm font-medium text-zinc-400"
               onClick={() => {
                 if (isSignedIn) {
-                  navigate("/dashboard");
+                  navigate("/auth-callback");
                 } else {
-                  clerk.redirectToSignIn({ redirectUrl: window.location.origin + "/dashboard" });
+                  clerk.redirectToSignIn({ redirectUrl: window.location.origin + "/auth-callback" });
                 }
               }}
             >
@@ -77,11 +78,10 @@ export default function HeroSection() {
           </div>
 
           <div className="flex items-center gap-4">
-            {isSignedIn && <Navigate to="/dashboard" />}
           </div>
         </div>
       </nav>
-
+ 
       {/* Hero Content */}
       <div className="max-w-7xl mx-auto px-6 pt-20 pb-24 min-h-screen flex items-center">
         <div className="grid lg:grid-cols-2 gap-16 items-center w-full">
@@ -99,37 +99,47 @@ export default function HeroSection() {
                 <Bell className="w-3.5 h-3.5 mr-1.5" /> Smart Notifications
               </Badge>
             </div>
-
+ 
             <h1 className="text-5xl lg:text-7xl font-bold tracking-tight leading-[1.1]">
               Discover Campus Events <br />
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-blue-400 to-cyan-400">
                 Smarter with AI
               </span>
             </h1>
-
+ 
             <p className="text-lg text-zinc-400 leading-relaxed max-w-xl">
               An AI-powered centralized platform helping students discover workshops, hackathons, seminars, and campus activities through personalized recommendations and semantic search.
             </p>
-
+ 
             <div className="flex flex-wrap items-center gap-4 pt-4">
-              {(!isLoaded || !isSignedIn) ? (
-                <>
-                  <SignInButton mode="redirect" forceRedirectUrl="/dashboard">
-                    <Button size="lg" className="h-12 px-6 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white shadow-[0_0_30px_rgba(124,58,237,0.3)] transition-all duration-300 hover:scale-105 group cursor-pointer">
-                      Get Started <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
-                    </Button>
-                  </SignInButton>
-                  <SignInButton mode="redirect" forceRedirectUrl="/dashboard">
-                    <Button size="lg" variant="outline" className="h-12 px-6 border-zinc-800 text-zinc-300 hover:bg-purple-900 hover:text-white backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-white/5 group cursor-pointer">
-                      Explore Events
-                    </Button>
-                  </SignInButton>
-                </>
-              ) : (
-                <Button onClick={() => navigate("/dashboard")} size="lg" className="h-12 px-6 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white shadow-[0_0_30px_rgba(124,58,237,0.3)] transition-all duration-300 hover:scale-105 group cursor-pointer">
-                  Explore Events <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
-                </Button>
-              )}
+              <Button 
+                onClick={() => {
+                  if (isSignedIn) {
+                    navigate("/auth-callback");
+                  } else {
+                    setShowRoleModal(true);
+                  }
+                }}
+                size="lg" 
+                className="h-12 px-6 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white shadow-[0_0_30px_rgba(124,58,237,0.3)] transition-all duration-300 hover:scale-105 group cursor-pointer border-0"
+              >
+                Get Started <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
+              </Button>
+              
+              <Button 
+                onClick={() => {
+                  if (isSignedIn) {
+                    navigate("/event");
+                  } else {
+                    setShowRoleModal(true);
+                  }
+                }}
+                size="lg" 
+                variant="outline" 
+                className="h-12 px-6 border-zinc-800 text-zinc-300 hover:bg-purple-900 hover:text-white backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-white/5 group cursor-pointer"
+              >
+                Explore Events
+              </Button>
             </div>
 
             {/* Project Insights */}
@@ -271,6 +281,81 @@ export default function HeroSection() {
       </div>
 
       {/* Scroll Indicator */}
+
+      {/* Role Selection Modal */}
+      {showRoleModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="bg-zinc-950 border border-white/10 rounded-2xl p-6 sm:p-8 max-w-xl w-full shadow-2xl relative animate-in zoom-in-95 duration-300">
+            
+            {/* Background glowing glow */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-purple-600/10 rounded-full blur-[80px] pointer-events-none" />
+
+            <div className="flex justify-between items-center mb-6 relative z-10">
+              <div>
+                <h3 className="text-2xl font-bold text-white flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-purple-400" />
+                  Select Your Portal
+                </h3>
+                <p className="text-zinc-400 text-sm mt-1">Choose how you want to sign in to Nexus AI.</p>
+              </div>
+              <button 
+                onClick={() => setShowRoleModal(false)}
+                className="text-zinc-500 hover:text-white transition-colors p-1 bg-transparent border-0 cursor-pointer"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-4 relative z-10">
+              
+              {/* Option A: Student */}
+              <div 
+                onClick={() => {
+                  localStorage.setItem("userRoleChoice", "student");
+                  setShowRoleModal(false);
+                  clerk.redirectToSignIn({ redirectUrl: window.location.origin + "/auth-callback" });
+                }}
+                className="group p-5 bg-zinc-900/40 border border-white/5 hover:border-purple-500/30 hover:bg-white/5 rounded-xl transition-all duration-300 cursor-pointer flex flex-col justify-between h-48 hover:-translate-y-1 shadow-lg hover:shadow-purple-500/5"
+              >
+                <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center border border-purple-500/20 group-hover:scale-110 group-hover:bg-purple-500/20 transition-all">
+                  <GraduationCap className="w-5.5 h-5.5 text-purple-400" />
+                </div>
+                <div>
+                  <h4 className="text-base font-bold text-zinc-200 group-hover:text-white transition-colors">
+                    Student / Learner
+                  </h4>
+                  <p className="text-xs text-zinc-500 mt-1.5 leading-relaxed">
+                    Explore hackathons, claim rewards, and build your personal technical profile.
+                  </p>
+                </div>
+              </div>
+
+              {/* Option B: Admin / Organizer */}
+              <div 
+                onClick={() => {
+                  localStorage.setItem("userRoleChoice", "admin");
+                  setShowRoleModal(false);
+                  clerk.redirectToSignIn({ redirectUrl: window.location.origin + "/auth-callback" });
+                }}
+                className="group p-5 bg-zinc-900/40 border border-white/5 hover:border-blue-500/30 hover:bg-white/5 rounded-xl transition-all duration-300 cursor-pointer flex flex-col justify-between h-48 hover:-translate-y-1 shadow-lg hover:shadow-blue-500/5"
+              >
+                <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center border border-blue-500/20 group-hover:scale-110 group-hover:bg-blue-500/20 transition-all">
+                  <Shield className="w-5.5 h-5.5 text-blue-400" />
+                </div>
+                <div>
+                  <h4 className="text-base font-bold text-zinc-200 group-hover:text-white transition-colors">
+                    Admin / Organizer
+                  </h4>
+                  <p className="text-xs text-zinc-500 mt-1.5 leading-relaxed">
+                    Host events, manage registrants, and track analytics for your campus club.
+                  </p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
       
     </div>
   );

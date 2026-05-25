@@ -1,9 +1,10 @@
 from pymongo import MongoClient
+import certifi
 from config.settings import (
     DATABASE_URL
 )
 
-client = MongoClient(DATABASE_URL)
+client = MongoClient(DATABASE_URL, tlsCAFile=certifi.where())
 
 
 # DATABASE
