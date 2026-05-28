@@ -113,13 +113,7 @@ export default function HeroSection() {
  
             <div className="flex flex-wrap items-center gap-4 pt-4">
               <Button 
-                onClick={() => {
-                  if (isSignedIn) {
-                    navigate("/auth-callback");
-                  } else {
-                    setShowRoleModal(true);
-                  }
-                }}
+                onClick={() => setShowRoleModal(true)}
                 size="lg" 
                 className="h-12 px-6 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white shadow-[0_0_30px_rgba(124,58,237,0.3)] transition-all duration-300 hover:scale-105 group cursor-pointer border-0"
               >
@@ -313,7 +307,11 @@ export default function HeroSection() {
                 onClick={() => {
                   localStorage.setItem("userRoleChoice", "student");
                   setShowRoleModal(false);
-                  clerk.redirectToSignIn({ redirectUrl: window.location.origin + "/auth-callback" });
+                  if (isSignedIn) {
+                    navigate("/dashboard");
+                  } else {
+                    clerk.redirectToSignIn({ redirectUrl: window.location.origin + "/auth-callback" });
+                  }
                 }}
                 className="group p-5 bg-zinc-900/40 border border-white/5 hover:border-purple-500/30 hover:bg-white/5 rounded-xl transition-all duration-300 cursor-pointer flex flex-col justify-between h-48 hover:-translate-y-1 shadow-lg hover:shadow-purple-500/5"
               >
@@ -329,13 +327,17 @@ export default function HeroSection() {
                   </p>
                 </div>
               </div>
-
+ 
               {/* Option B: Admin / Organizer */}
               <div 
                 onClick={() => {
                   localStorage.setItem("userRoleChoice", "admin");
                   setShowRoleModal(false);
-                  clerk.redirectToSignIn({ redirectUrl: window.location.origin + "/auth-callback" });
+                  if (isSignedIn) {
+                    navigate("/admin-onboarding");
+                  } else {
+                    clerk.redirectToSignIn({ redirectUrl: window.location.origin + "/auth-callback" });
+                  }
                 }}
                 className="group p-5 bg-zinc-900/40 border border-white/5 hover:border-blue-500/30 hover:bg-white/5 rounded-xl transition-all duration-300 cursor-pointer flex flex-col justify-between h-48 hover:-translate-y-1 shadow-lg hover:shadow-blue-500/5"
               >
